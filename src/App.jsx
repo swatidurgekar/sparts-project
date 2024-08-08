@@ -7,12 +7,12 @@ import Filter from "./components/Filter";
 
 const App = () => {
   const [students, setStudents] = useState([]);
-  const [displayedStudent, setDisplayStudent] = useState(students);
+  const [displayedStudent, setDisplayStudent] = useState([]);
   const [page, setPage] = useState(27);
   const [search, setSearch] = useState([]);
-  const [searchPage, setSearchPage] = useState(0);
 
   //fetch the data from api
+
   useEffect(() => {
     async function getStudents() {
       const studentData = await axios.get(
@@ -29,51 +29,31 @@ const App = () => {
   }, []);
 
   //function to decrease page number and show data
-  const handlePreviousPage = () => {
-    if (
-      (search.length === 0 || search.length === students.length) &&
-      page > 0
-    ) {
+  const handlePreviousPage = async () => {
+    if (page > 0) {
       setPage(page - 1);
-      const displayedStudentsData = students.slice(
-        (page - 1) * 10,
-        10 * (page - 1) + 10
+      const displayedStudentsData = await axios.get(
+        `http://3.223.98.72:1337/api/students?pagination[page]=${
+          page - 1
+        }&pagination[pageSize]=10`
       );
-      setDisplayStudent(displayedStudentsData);
-    } else {
-      if (searchPage > 0) {
-        setSearchPage(searchPage - 1);
-        const displayedStudentsData = search.slice(
-          (searchPage - 1) * 10,
-          10 * (searchPage - 1) + 10
-        );
-        setDisplayStudent(displayedStudentsData);
-      }
+      setDisplayStudent(displayedStudentsData.data.data);
     }
   };
 
   //function to increase page number and show data
-  const handleNextPage = () => {
-    console.log(search.length);
-
-    if (search.length === 0 || search.length === students.length) {
-      setPage(page + 1);
-      const displayedStudentsData = students.slice(
-        (page + 1) * 10,
-        10 * (page + 1) + 10
-      );
-      setDisplayStudent(displayedStudentsData);
-    } else {
-      setSearchPage(searchPage + 1);
-      const displayedStudentsData = search.slice(
-        (searchPage + 1) * 10,
-        10 * (searchPage + 1) + 10
-      );
-      setDisplayStudent(displayedStudentsData);
-    }
+  const handleNextPage = async () => {
+    setPage(page + 1);
+    const displayedStudentsData = await axios.get(
+      `http://3.223.98.72:1337/api/students?pagination[page]=${
+        page + 1
+      }&pagination[pageSize]=10`
+    );
+    setDisplayStudent(displayedStudentsData.data.data);
   };
-  
+
   //function to filter according to search
+
   const searchStudents = (keyword) => {
     const filteredStudent = students.filter((student) => {
       // student.id.includes(keyword) ||
